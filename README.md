@@ -121,7 +121,7 @@ Even though call 1 to 2 is en route, we first start working on the first call. A
 
 ```gherkin
 Scenario: Large Scenario
-    Given the elevator is positioned on the groud floor
+    Given the elevator is positioned on the ground floor
     When there is a call from floor3 to go to basement
     And there is a call from ground to go to basement
     And there is a call from floor2 to go to basement
@@ -162,7 +162,7 @@ An even more complex scenario, following the same logic, is the following
 
 ```gherkin
 Scenario: Complex Scenario
-    Given the elevator is positioned on the groud floor
+    Given the elevator is positioned on the ground floor
     When there is a call from floor 1 to go to floor 3
     And there is a call from floor 2 to go to floor 4
     And there is a call from ground to go to floor 2
@@ -179,6 +179,14 @@ Scenario: Complex Scenario
      floor 5, floor 3, floor 2, floor 1, basement, floor 5, floor 4, floor 2, ground, basement and floor 1 in this order
     for a total of 19 stops
 ```
+
+Given the complex scenario, the elevator starts executing the first call: pickup on floor 1 to deliver on floor 3. So the elevator starts going up.
+Upon arriving at floor 1, it picks up the passenger for the first call but also the passenger for the call floor 1 to floor 2.
+The elevator then stops on floor two to complete the call pickup floor 1 to deliver on floor 2. 
+Finally arriving at floor 3 it completes the first call 1 to 3.
+
+It has completed the first call in its queue, along the ay also completing the fourth call. It now starts on the second call: Pickup at floor 2 and delivery at flour 4. So it starts moving down.
+Arriving at floor 2 it picks up the passenger and starts executing the call 2 to 4, going up.
 
 Running the complex scenario using the CLI would look like
 
@@ -263,7 +271,7 @@ Before we even started working on the first call, we have already completed the 
 The larger example would now look like:
 ```gherkin
 Scenario: Large Scenario
-    Given the elevator is positioned on the groud floor
+    Given the elevator is positioned on the ground floor
     When there is a call from floor 3 to go to basement
     And there is a call from ground to go to basement
     And there is a call from floor 2 to go to basement
@@ -277,7 +285,7 @@ Still assume all calls to the elevator happen in the sequence given but in less 
 The complex scenario, following the same logic, would now look like this
 ```gherkin
 Scenario: Complex Scenario
-    Given the elevator is positioned on the groud floor
+    Given the elevator is positioned on the ground floor
     When there is a call from floor 1 to go to floor 3
     And there is a call from floor 2 to go to floor 4
     And there is a call from ground to go to floor 2
