@@ -2,17 +2,79 @@
 
 ### Description
 
-We will implement a elevator controller. Where an elevator responds to calls containing a source floor and a destination. Whereupon the elevator 
-picks up and delivers the passengers to requested floors. 
+We will implement an elevator controller. Where an elevator responds to calls containing a source floor and a destination. Whereupon the elevator picks up and
+delivers the passengers to requested floors. All actions take time, we want to minimize the amount of time that passengers have to wait on an elevator and the
+time spend inside an elevator. Where we prefer to let them wait for an elevator than placing them longer inside the elevator. Optimization of our elevator logic
+will be measured by how fast we can execute our calls.
 
-The goal of the kata is to complete the logic inside the ElevatorController. The rest of the code present is a simple CLI to illustrate how the code should work and to have a convenient CLI to use the logic, run other simulations. Feel free to modify the internals of the CLI in any way you see fit, change the api etc...
+```gherkin
+Given the elevator is positioned on the third floor
+And the current time is T0
+When there is a call from the first/ground floor to go to the basement
+Then the doors of the elevator will open at the ground floor to onboard the passenger and in the basements to deliver the passenger to their destination
+And the current time is T14
+```
 
-Inspired by [Lift Kata](https://kata-log.rocks/lift-kata) and [Agile Technical Practices Distilled](https://www.amazon.com/Agile-Technical-Practices-Distilled-principles-ebook)
+Inspired by [Lift Kata](https://kata-log.rocks/lift-kata)
+and [Agile Technical Practices Distilled](https://www.amazon.com/Agile-Technical-Practices-Distilled-principles-ebook)
+
+### Overall design requirements
+
+Below are all the high level requirements of what we eventually want to have. We will of course implement this piece by piece.
+
+#### Basic Elevator logic
+
++ An elevator should be able to pick up and deliver a passenger.
++ An elevator does not move with open doors.
++ An elevator has a maximum capacity. When the weight is too high the elevator will not depart. We will try to prevent this by limiting the amount of calls an
+  elevator can execute simultaneously to 5.
+
+#### Multiple Elevators
+
++ There could be multiple elevators. Make sure we can add elevators.
++ When there are multiple elevators, there are multiple ways to determine which elevator gets to execute a call. This is the **Elevator selection strategy**.
+  Make sure we can easily modify this.
++ As a first implementation of the Elevator selection strategy use the *Distribute equally strategy* where you can choose the elevator that has the least calls  assigned and is closest to the origin of the call
+
+#### Handling calls by an elevator
+
++ When an elevator has multiple calls there are multiple ways to determine which call to execute next. This is an elevators **Next Call strategy**. Make sure we
+  can easily modify this. As a first implementation just queue the registered call and take them in the order they came in.
++ When an elevator is executing a call, we can choose the handle other calls along the way. This is an elevators **Pickup strategy**. Make sure we can easily
+  modify this. As a first implementation, don't pick-up passengers.
++ If we handle one call at a time, the elevator maximum capacity is not an issue. But we will limit the amount of calls an elevator can execute simultaneously
+  to 5.
+
+#### The concept of time
+
+The following time durations apply:
+
++ The elevator moving from one floor to another takes **one Timeslot** (real life would be say 2 sec ).
++ Opening the doors takes **one timeslot**.
++ Closing the doors takes **one timeslot**.
++ The onboarding of passenger takes **three timeslots**.
+
+```gherkin
+Scenario: Time example scenario
+Given the elevator is positioned on the ground floor at T0
+When there is a call from floor 2 to go to floor 3 at T0
+Then the elevator arrives at floor 2 at T2 ( = T0 + 2 * 1 timeslot for moving two floors up)
+Then the doors should open at floor 2 at T3 ( = T2 + 1 timeslot for opening doors)
+And the doors should close at floor 2 at T7 ( = T3 + 3 timeslot for onboarding + 1 timeslot for closing doors )
+And the elevator arrives at floor 3 at T8 ( = T7 + 1 timeslot for moving one floor up)
+And the doors should open at floor 3 at T9 ( = T8 + 1 timeslot for opening doors)
+And the doors should close at floor 3 at T13 ( = T9 + 3 timeslot for onboarding + 1 timeslot for closing doors )
+```
 
 ### Getting started
 
-While the main logic of the kata needs to be implemented, there is a basic CLI in place to use the "application" from the command line. So if you checked out the code, you should have a running application.
-Before you start the exercise make sure that the launch command works. The launch command is just a small wrapper around maven that compiles the code, runs the tests and starts the application.
+While the main logic of the kata needs to be implemented, there is a basic CLI in place to use the "application" from the command line. So if you checked out
+the code, you should have a running application. The goal of the kata is to complete the logic inside the ElevatorController. The rest of the code present is a
+simple CLI to illustrate how the code should work and to have a convenient CLI to use the logic, run other simulations. Feel free to modify the internals of the
+CLI in any way you see fit, change the api etc...
+
+Before you start the exercise make sure that the launch command works. The launch command is just a small wrapper around maven that compiles the code, runs the
+tests and starts the application.
 
 This is what you should see on windows
 
@@ -32,23 +94,27 @@ This is what you should see on mac/linux
 **************************
 ```
 
-### The kata
-#### Part I
+### Get started
 
 Implement a lift controller for a building that has 5 total floors including basement and ground.
 The elevator can be called at any floor only when it is not in use via one call button.
 
+Simplifications:
++ There is only one elevator
++ Don't worry yet about time
++ Execute one call at a time
+
 ```gherkin
 Scenario: Part One Scenario
-    Given the elevator is positioned on the ground floor
-    When there is a call from floor3 to go to basement
-    And there is a call from ground to go to basement
-    And there is a call from floor2 to go to basement
-    And there is a call from floor1 to go to floor 3
-    Then the doors should open at floor3, basement, ground, basement, floor2, basement, floor1 and floor3 in this order
+Given the elevator is positioned on the ground floor
+When there is a call from floor3 to go to basement
+And there is a call from ground to go to basement
+And there is a call from floor2 to go to basement
+And there is a call from floor1 to go to floor 3
+Then the doors should open at floor3, basement, ground, basement, floor2, basement, floor1 and floor3 in this order
 ```
 
-When the elevator is to a floor, no new call can be registered. 
+When the elevator is to a floor, no new call can be registered.
 
 Running the above scenario through the CLI this might look something like this:
 
@@ -102,290 +168,14 @@ Elevator at 3 floor
 The elevator is currently at 3 floor
 ```
 
+Once you have this up and running, it is up to you how you proceed.
 
-#### Part II
++ Allow multiple elevators
++ Add a time concept
++ Optimize handling of elevator calls by improving the strategies.
+  + Better **Next Call strategy**, how does the elevator select the next call. 
++ Optimize **Pickup strategy**
+  + How to make the most efficient use of the elevator route. Which calls can be handled along the way.
 
-The elevator is not fast enough so as an experiment to speed it up the idea is to allow the elevator to queue the requests and optimize the trips.
-
-The elevator can now queue the stop requests from the floors and collect people along the way, while executing a call, but cannot change direction once started until all calls in the same direction have been fulfilled.
-
-```gherkin
-Scenario: Basic Scenario
-    Given the elevator is positioned on the ground floor
-    When there is a call from floor 2 to go to floor 3    
-    And there is a call from floor 1 to go to floor 2
-    Then the doors should open at floor 2, floor 3 , floor1 and floor2 in this order
-```
-
-Even though call 1 to 2 is en route, we first start working on the first call. A larger example:
-
-```gherkin
-Scenario: Large Scenario
-    Given the elevator is positioned on the ground floor
-    When there is a call from floor3 to go to basement
-    And there is a call from ground to go to basement
-    And there is a call from floor2 to go to basement
-    And there is a call from floor1 to go to floor 3
-    Then the doors should open at floor3, floor2, ground, basement, floor1 and floor3 in this order
-    for a total of 6 stops
-```
-Assume all calls to the elevator happen in the sequence given but in less than the time it takes to travel one floor. So before the elevator reaches the ground floor, all the commands were received.
-Running the above scenario using the CLI this would look like
-
-```text
-**************************
-**    Elevator Kata     **
-**************************
-
-> 3-b 0-b 2-b 1-3
-
-Elevator at floor 1
-Elevator at floor 2
-Elevator at floor 3
-<DING> - door open at 3 floor
-Elevator at floor 2
-<DING> - door open at 2 floor
-Elevator at floor 1
-Elevator at floor 0
-<DING> - door open at ground floor
-Elevator at floor -1
-<DING> - door open at basement
-Elevator at floor 0
-Elevator at floor 1
-<DING> - door open at 1 floor
-Elevator at floor 2
-Elevator at floor 3
-<DING> - door open at 3 floor
-```
-
-An even more complex scenario, following the same logic, is the following
-
-```gherkin
-Scenario: Complex Scenario
-    Given the elevator is positioned on the ground floor
-    When there is a call from floor 1 to go to floor 3
-    And there is a call from floor 2 to go to floor 4
-    And there is a call from ground to go to floor 2
-    And there is a call from floor 1 to go to floor 2
-    And there is a call from floor 3 to go to floor 5
-    And there is a call from floor 3 to go to basement
-    And there is a call from floor 5 to go to ground
-    And there is a call from floor 4 to go to floor 2
-    And there is a call from floor 2 to go to floor 1
-    And there is a call from basement to go to floor 1
-
-    Then the doors should open at 
-    floor 1, floor 2, floor 3, floor 2, floor 4, ground, floor 2, floor 3,
-     floor 5, floor 3, floor 2, floor 1, basement, floor 5, floor 4, floor 2, ground, basement and floor 1 in this order
-    for a total of 19 stops
-```
-
-Given the complex scenario, the elevator starts executing the first call: pickup on floor 1 to deliver on floor 3. So the elevator starts going up.
-Upon arriving at floor 1, it picks up the passenger for the first call but also the passenger for the call floor 1 to floor 2.
-The elevator then stops on floor two to complete the call pickup floor 1 to deliver on floor 2. 
-Finally arriving at floor 3 it completes the first call 1 to 3.
-
-It has completed the first call in its queue, along the ay also completing the fourth call. It now starts on the second call: Pickup at floor 2 and delivery at flour 4. So it starts moving down.
-Arriving at floor 2 it picks up the passenger and starts executing the call 2 to 4, going up.
-
-Running the complex scenario using the CLI would look like
-
-```text
-**************************
-**    Elevator Kata     **
-**************************
-> 1-3 2-4 g-2 1-2 3-5 3-b 5-g 4-2 2-1 b-1
-
-Elevator at 1 floor
-<DING> - door open at 1 floor
-Elevator at 2 floor
-<DING> - door open at 2 floor
-Elevator at 3 floor
-<DING> - door open at 3 floor
-Elevator at 2 floor
-<DING> - door open at 2 floor
-Elevator at 3 floor
-Elevator at 4 floor
-<DING> - door open at 4 floor
-Elevator at 3 floor
-Elevator at 2 floor
-Elevator at 1 floor
-Elevator at ground floor
-<DING> - door open at ground floor
-Elevator at 1 floor
-Elevator at 2 floor
-<DING> - door open at 2 floor
-Elevator at 3 floor
-<DING> - door open at 3 floor
-Elevator at 4 floor
-Elevator at 5 floor
-<DING> - door open at 5 floor
-Elevator at 4 floor
-Elevator at 3 floor
-<DING> - door open at 3 floor
-Elevator at 2 floor
-<DING> - door open at 2 floor
-Elevator at 1 floor
-<DING> - door open at 1 floor
-Elevator at ground floor
-Elevator at basement
-<DING> - door open at basement
-Elevator at ground floor
-Elevator at 1 floor
-Elevator at 2 floor
-Elevator at 3 floor
-Elevator at 4 floor
-Elevator at 5 floor
-<DING> - door open at 5 floor
-Elevator at 4 floor
-<DING> - door open at 4 floor
-Elevator at 3 floor
-Elevator at 2 floor
-<DING> - door open at 2 floor
-Elevator at 1 floor
-Elevator at ground floor
-<DING> - door open at ground floor
-Elevator at basement
-<DING> - door open at basement
-Elevator at ground floor
-Elevator at 1 floor
-<DING> - door open at 1 floor
-```
-
-### Part III
-
-
-We would like to optimize the elevator Controller a bit further. There is no need to wait until a call is in progress to start executing a call that we can do while we are on the way. So while we are en route to pick someone up, we could start handling calls. Looking back to our previous examples. the logic now changes:
-
-```gherkin
-Scenario: Basic Scenario
-    Given the elevator is positioned on the ground floor
-    When there is a call from floor 2 to go to floor 3    
-    And there is a call from floor1 to go to floor 2
-    Then the doors should open at floor 1, floor 2 and floor 3 in this order
-    for a total of 3 stops
-```
-
-Before we even started working on the first call, we have already completed the second call. It was on our way.
-
-The larger example would now look like:
-```gherkin
-Scenario: Large Scenario
-    Given the elevator is positioned on the ground floor
-    When there is a call from floor 3 to go to basement
-    And there is a call from ground to go to basement
-    And there is a call from floor 2 to go to basement
-    And there is a call from floor 1 to go to floor 3
-    Then the doors should open at floor 1, floor 3, floor 2, ground, basement in this order
-    for a total of 5 stops
-```
-
-Still assume all calls to the elevator happen in the sequence given but in less than the time it takes to travel one floor. So before the elevator reaches the ground floor, all the commands were received.
-
-The complex scenario, following the same logic, would now look like this
-```gherkin
-Scenario: Complex Scenario
-    Given the elevator is positioned on the ground floor
-    When there is a call from floor 1 to go to floor 3
-    And there is a call from floor 2 to go to floor 4
-    And there is a call from ground to go to floor 2
-    And there is a call from floor 1 to go to floor 2
-    And there is a call from floor 3 to go to floor 5
-    And there is a call from floor 3 to go to basement
-    And there is a call from floor 5 to go to ground
-    And there is a call from floor 4 to go to floor 2
-    And there is a call from floor 2 to go to floor 1
-    And there is a call from basement to go to floor 1
-    Then the doors should open at floor 1, floor 2, floor 3, floor 2, floor 4, floor 2, floor 1,
-     ground, floor 2, floor 3, floor 5, floor 3, basement, floor 5, floor 4, floor 2, ground, basement and floor 1 in this order
-    for a total of 19 stops
-  ```
-
-
-The large scenario in the cli looks like
-
-```text
-**************************
-**    Elevator Kata     **
-**************************
-
-> 3-b 0-b 2-b 1-3
-
-Elevator at 1 floor
-<DING> - door open at 1 floor
-Elevator at 2 floor
-Elevator at 3 floor
-<DING> - door open at 3 floor
-Elevator at 2 floor
-<DING> - door open at 2 floor
-Elevator at 1 floor
-Elevator at ground floor
-<DING> - door open at ground floor
-Elevator at basement
-<DING> - door open at basement
-```
-
-The complex scenario in the cli looks like
-
-```text
-**************************
-**    Elevator Kata     **
-**************************
-
-> 1-3 2-4 g-2 1-2 3-5 3-b 5-g 4-2 2-1 b-1
-
-Elevator at 1 floor
-<DING> - door open at 1 floor
-Elevator at 2 floor
-<DING> - door open at 2 floor
-Elevator at 3 floor
-<DING> - door open at 3 floor
-Elevator at 2 floor
-<DING> - door open at 2 floor
-Elevator at 3 floor
-Elevator at 4 floor
-<DING> - door open at 4 floor
-Elevator at 3 floor
-Elevator at 2 floor
-<DING> - door open at 2 floor
-Elevator at 1 floor
-<DING> - door open at 1 floor
-Elevator at ground floor
-<DING> - door open at ground floor
-Elevator at 1 floor
-Elevator at 2 floor
-<DING> - door open at 2 floor
-Elevator at 3 floor
-<DING> - door open at 3 floor
-Elevator at 4 floor
-Elevator at 5 floor
-<DING> - door open at 5 floor
-Elevator at 4 floor
-Elevator at 3 floor
-<DING> - door open at 3 floor
-Elevator at 2 floor
-Elevator at 1 floor
-Elevator at ground floor
-Elevator at basement
-<DING> - door open at basement
-Elevator at ground floor
-Elevator at 1 floor
-Elevator at 2 floor
-Elevator at 3 floor
-Elevator at 4 floor
-Elevator at 5 floor
-<DING> - door open at 5 floor
-Elevator at 4 floor
-<DING> - door open at 4 floor
-Elevator at 3 floor
-Elevator at 2 floor
-<DING> - door open at 2 floor
-Elevator at 1 floor
-Elevator at ground floor
-<DING> - door open at ground floor
-Elevator at basement
-<DING> - door open at basement
-Elevator at ground floor
-Elevator at 1 floor
-<DING> - door open at 1 floor
-```
+Remember we want to minimize the amount of time that passengers have to wait on an elevator and the
+time they spend inside an elevator
