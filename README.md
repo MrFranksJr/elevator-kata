@@ -49,7 +49,7 @@ Below are all the high level requirements of what we eventually want to have. We
 
 The following time durations apply:
 
-+ The elevator moving from one floor to another takes **one Timeslot** (real life would be say 2 sec ).
++ The elevator moving from one floor to another takes **one timeslot** (real life would be say 2 sec ).
 + Opening the doors takes **one timeslot**.
 + Closing the doors takes **one timeslot**.
 + The onboarding of passenger takes **three timeslots**.
@@ -94,7 +94,7 @@ This is what you should see on mac/linux
 **************************
 ```
 
-### Get started
+### Basic Elevator functionality
 
 Implement a lift controller for a building that has 5 total floors including basement and ground.
 The elevator can be called at any floor only when it is not in use via one call button.
