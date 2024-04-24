@@ -167,6 +167,7 @@ Elevator at 3 floor
 >p
 The elevator is currently at 3 floor
 ```
+### The stage is yours
 
 Once you have this up and running, it is up to you how you proceed.
 
