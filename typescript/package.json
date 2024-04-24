@@ -1,0 +1,19 @@
+{
+  "devDependencies": {
+    "rimraf": "^5.0.5",
+    "typescript": "^5.4.5"
+  },
+  "scripts": {
+    "build": "rimraf ./build && tsc",
+    "test": "jest",
+    "start": "npm run build && jest && node build/index.js"
+  },
+  "dependencies": {
+    "@types/prompt-sync": "^4.2.3",
+    "commander": "^12.0.0",
+    "jest": "^29.7.0",
+    "prompt-sync": "^4.2.0",
+    "readline-sync": "^1.4.10",
+    "ts-jest": "^29.1.2"
+  }
+}
