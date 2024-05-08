@@ -1,42 +1,43 @@
-from elevator_kata.elevator import ElevatorCall, Controller
-from elevator_kata.parser import Parser
+from elevator_kata.elevator import ElevatorCall, ElevatorController
+from elevator_kata.parser import parse_calls
 
 
-def read_calls(controller: Controller) -> str:
+def read_calls(controller: ElevatorController) -> None:
     keep_running = True
     while keep_running:
-        input = input("Register elevator calls: ")
-        match input.lower():
+        received_input = input("Register elevator calls: ")
+        match received_input.lower():
             case "q":
                 keep_running = False
             case "p":
-                print_position(controller.current_elevator_floor)
+                __print_position(controller.current_elevator_floor)
             case _:
-                _process_calls(input)
+                __process_calls(received_input, controller)
 
 
-def _process_calls(self, call_tokens: str) -> None:
-    elevator_calls = Parser().parse_calls(call_tokens)
+def __process_calls(call_tokens: str, elevator_controller: ElevatorController = None) -> None:
+    elevator_calls = parse_calls(call_tokens)
     if len(elevator_calls) == 0:
-        self.presenter.print_api()
-    else:
-        for elevator_call in elevator_calls:
-            self.presenter.print_call(elevator_call)
-        self.elevator_controller.handle_calls(elevator_calls)
+        __print_api()
+        return
+
+    for elevator_call in elevator_calls:
+        __print_call(elevator_call)
+        elevator_controller.handle_call(elevator_call)
 
 
-def print_call(elevator_call: ElevatorCall) -> None:
+def __print_call(elevator_call: ElevatorCall) -> None:
     print(
-        f"A call was received from the floor [{print_floor(elevator_call.origin_floor)}] with destination [{print_floor(elevator_call.destination_floor)}]")
+        f"A call was received from the floor [{__print_floor(elevator_call.origin_floor)}] with destination [{__print_floor(elevator_call.destination_floor)}]")
 
 
-def print_intro() -> None:
+def __print_intro() -> None:
     print("*************************")
     print("*    Elevator Kata      *")
     print("*************************")
 
 
-def print_api() -> None:
+def __print_api() -> None:
     print("")
     print("Press P to get the current position of the elevator")
     print("Press Q to quit the application")
@@ -47,11 +48,11 @@ def print_api() -> None:
     print("")
 
 
-def print_position(current_elevator_floor: int) -> None:
-    print(f"The elevator is currently at {print_floor(current_elevator_floor)}")
+def __print_position(current_elevator_floor: int) -> None:
+    print(f"The elevator is currently at {__print_floor(current_elevator_floor)}")
 
 
-def print_floor(current_elevator_floor: int) -> str:
+def __print_floor(current_elevator_floor: int) -> str:
     match current_elevator_floor:
         case 0:
             return "G"

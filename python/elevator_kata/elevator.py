@@ -13,7 +13,7 @@ class ElevatorCall:
             raise ValueError("Not a valid number in ElevatorCall")
 
 
-class Controller:
+class ElevatorController:
     def handle_call(self, call: ElevatorCall) -> None:
         pass
 
