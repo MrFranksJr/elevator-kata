@@ -3,6 +3,7 @@ from elevator_kata.parser import parse_calls
 
 
 def read_calls(controller: ElevatorController) -> None:
+    __print_intro()
     keep_running = True
     while keep_running:
         received_input = input("Register elevator calls: ")
