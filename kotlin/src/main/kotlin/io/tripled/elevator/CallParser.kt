@@ -5,7 +5,6 @@ import java.util.*
 enum class CallParser {
     CALL_PARSER;
 
-
     fun parse(input: String): Optional<ElevatorCall> {
         val splitTokens = input.split("-".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
         return if (hasTwoPositions(splitTokens)) {

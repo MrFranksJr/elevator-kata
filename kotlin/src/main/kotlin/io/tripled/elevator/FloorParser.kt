@@ -1,5 +1,7 @@
 package io.tripled.elevator
 
+import kotlin.math.abs
+
 enum class FloorParser {
     FLOOR_PARSER;
 
@@ -11,9 +13,18 @@ enum class FloorParser {
 
     fun toText(currentElevatorFloor: Int): String {
         return when (currentElevatorFloor) {
-            -1 -> "basement"
-            0 -> "ground floor"
-            else -> "$currentElevatorFloor floor"
+            -1 -> "Basement"
+            0 -> "Ground floor"
+            else -> {
+                val absoluteFloorNumber = abs(currentElevatorFloor)
+                val floorSuffix = when (absoluteFloorNumber % 10) {
+                    1 -> if (absoluteFloorNumber % 100 == 11) "th" else "st"
+                    2 -> if (absoluteFloorNumber % 100 == 12) "th" else "nd"
+                    3 -> if (absoluteFloorNumber % 100 == 13) "th" else "rd"
+                    else -> "th"
+                }
+                "$currentElevatorFloor$floorSuffix floor"
+            }
         }
     }
 }
