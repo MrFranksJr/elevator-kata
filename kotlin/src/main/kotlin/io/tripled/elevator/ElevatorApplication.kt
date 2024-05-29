@@ -4,33 +4,44 @@ import java.util.*
 
 
 class ElevatorApplication {
-    private val controller = ElevatorController()
+    private val elevatorController: ElevatorController
 
-    private fun handleCommand(applicationCommand: ApplicationCommand, input: String): String {
-        return when (applicationCommand) {
-            ApplicationCommand.QUIT -> QUIT_MESSAGE
-            ApplicationCommand.POSITION -> elevatorPositionMessage()
-            ApplicationCommand.MOVE -> handleMoveCommand(input)
-            ApplicationCommand.UNKNOWN -> this.apiMessage()
+    init {
+        val elevatorFeedback = SimpleElevatorFeedback()
+        elevatorController = ElevatorController(elevatorFeedback)
+    }
+
+    private fun handleCommand(applicationCommand: ApplicationCommand, input: String) {
+        when (applicationCommand) {
+            ApplicationCommand.QUIT -> {
+                println("*********END*****************")
+            }
+            ApplicationCommand.POSITION -> {
+                println(elevatorPositionMessage())
+            }
+            ApplicationCommand.MOVE -> {
+                handleMoveCommand(input)
+            }
+            ApplicationCommand.UNKNOWN -> {
+                println(this.apiMessage())
+            }
         }
     }
 
-    private fun handleMoveCommand(input: String): String {
-        return CallParser.CALL_PARSER.parse(input)
+    private fun handleMoveCommand(input: String) {
+        CallParser.CALL_PARSER.parse(input)
             .map { elevatorCall: ElevatorCall -> this.handleCall(elevatorCall) }
             .orElseGet { this.apiMessage() }
     }
 
 
     private fun elevatorPositionMessage(): String {
-        val currentElevatorFloor = controller.currentElevatorFloor
+        val currentElevatorFloor = elevatorController.currentFloor()
         return "The elevator is currently at " + FloorParser.FLOOR_PARSER.toText(currentElevatorFloor)
     }
 
-    private fun handleCall(elevatorCall: ElevatorCall): String {
-        val message = "A call was received from the floor [" + elevatorCall.callOrigin + "] with destination [" + elevatorCall.callDestination + "]"
-        controller.handleCall(elevatorCall)
-        return message
+    private fun handleCall(elevatorCall: ElevatorCall) {
+        elevatorController.handleCall(elevatorCall)
     }
 
     private fun apiMessage(): String {
@@ -43,7 +54,6 @@ class ElevatorApplication {
     }
 
     companion object {
-        const val QUIT_MESSAGE: String = "*********END*****************"
         @JvmStatic
         fun main(args: Array<String>) {
             println("**************************")
@@ -58,9 +68,10 @@ class ElevatorApplication {
                 do {
                     val input = scanner.nextLine()
                     val applicationCommand = ApplicationCommand.parse(input)
-                    val outputMessage = application.handleCommand(applicationCommand, input)
-                    println(outputMessage)
-                    if (QUIT_MESSAGE.equals(outputMessage, ignoreCase = true)) break
+                    application.handleCommand(applicationCommand, input)
+                    if (applicationCommand == ApplicationCommand.QUIT) {
+                        break
+                    }
                 } while (true)
             }
         }
