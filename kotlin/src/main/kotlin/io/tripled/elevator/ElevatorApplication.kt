@@ -14,7 +14,7 @@ class ElevatorApplication {
     private fun handleCommand(applicationCommand: ApplicationCommand, input: String) {
         when (applicationCommand) {
             ApplicationCommand.QUIT -> {
-                println("*********END*****************")
+                println("*********END*********")
             }
             ApplicationCommand.POSITION -> {
                 println(elevatorPositionMessage())
@@ -29,40 +29,47 @@ class ElevatorApplication {
     }
 
     private fun handleMoveCommand(input: String) {
-        CallParser.CALL_PARSER.parse(input)
-            .map { elevatorCall: ElevatorCall -> this.handleCall(elevatorCall) }
-            .orElseGet { this.apiMessage() }
+        val result = CallParser.CALL_PARSER.parse(input)
+        if (result.isSuccess) {
+            handleCall(result.getOrThrow())
+        } else {
+            println("Error: ${result.exceptionOrNull()?.message}")
+            println(apiMessage())
+        }
     }
 
 
     private fun elevatorPositionMessage(): String {
         val currentElevatorFloor = elevatorController.currentFloor()
-        return "The elevator is currently at " + FloorParser.FLOOR_PARSER.toText(currentElevatorFloor)
+        return "The elevator is currently at ${FloorParser.FLOOR_PARSER.toText(currentElevatorFloor)}"
     }
 
     private fun handleCall(elevatorCall: ElevatorCall) {
         elevatorController.handleCall(elevatorCall)
     }
 
-    private fun apiMessage(): String {
-        return ("Press P to get the current position of the elevator" + System.lineSeparator()
-                + "Press Q to quit the application" + System.lineSeparator()
-                + "To give the elevator a Call the format must be " + System.lineSeparator()
-                + "  3-B : A call from the third floor to go to the basement " + System.lineSeparator()
-                + "  G-5 : A call from the ground floor to go to the fifth floor " + System.lineSeparator()
-                + "  4-2 : A call from the fourth floor to go to the second floor")
-    }
+    private fun apiMessage(): String = """
+            |API:
+            |Press P to get the current position of the elevator
+            |Press Q to quit the application
+            |To give the elevator a Call the format must be
+            |  3 - B : A call from the third floor to go to the basement 
+            |  G - 5 : A call from the ground floor to go to the fifth floor 
+            |  4 - 2 : A call from the fourth floor to go to the second floor
+        """.trimMargin()
 
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            println("**************************")
-            println("**    Elevator Kata     **")
-            println("**************************")
+            println("""
+                **************************
+                **    Elevator Kata     **
+                **************************
+            """.trimIndent())
             readInput()
         }
 
-        fun readInput() {
+        private fun readInput() {
             val application = ElevatorApplication()
             Scanner(System.`in`).use { scanner ->
                 do {

@@ -7,7 +7,7 @@ class ElevatorControllerTest : FunSpec({
     lateinit var elevatorController: ElevatorController
     lateinit var testElevatorFeedback: TestElevatorFeedback
 
-    beforeTest {
+    beforeEach {
         testElevatorFeedback = TestElevatorFeedback()
         elevatorController = ElevatorController(testElevatorFeedback)
     }
